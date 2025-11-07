@@ -1,0 +1,101 @@
+<canvas id = 'life' width = "2000" height = '1200'></canvas>
+<script>
+WIDTH = 2000
+HEIGHT = 1200
+
+m = document.getElementById('life').getContext('2d')
+draw = (x, y, c, s) => {
+    m.fillStyle = c
+    m.fillRect(x, y, s, s)
+}
+particles = []
+particle = (x, y, c) => {
+    return { 'x':x, 'y':y, 'vx':0, 'vy':0, 'c':c }
+}
+
+randomX = () => {
+    return Math.random() * WIDTH
+}
+
+randomY = () => {
+    return Math.random() * HEIGHT
+}
+
+create = (n, c) => {
+    group = []
+    for(i = 0; i < n; i++) {
+        group.push(particle(randomX(), randomY(), c))
+        particles.push(group[i])
+    }
+    return group
+}
+
+rule = (particles1, particles2, g) => {
+    for(i = 0; i < particles1.length; i++) {
+        fx = 0
+        fy = 0
+        for(j = 0; j < particles2.length; j++) {
+            a = particles1[i]
+            b = particles2[j]
+            dx = a.x - b.x
+            dy = a.y - b.y
+            d = Math.sqrt(dx * dx + dy * dy)
+            if(d > 0 && d < 40) {
+                F = g * 1 / d
+                fx += (F * dx)
+                fy += (F * dy)
+            }
+
+            a.vx = (a.vx + fx) * 0.25
+            a.vy = (a.vy + fy) * 0.25
+            a.x += a.vx
+            a.y += a.vy
+            // if(a.x <= 0 || a.x >= WIDTH) { a.vx *= -.01 }
+            if(a.x <= 0) { a.x = WIDTH + a.x }
+            if(a.x >= WIDTH) { a.x = a.x - WIDTH}
+            // if(a.y <= 0 || a.y >= HEIGHT) { a.vy *= -.01}
+            if(a.y <= 0) { a.y = HEIGHT + a.y }
+            if(a.y >= HEIGHT) { a.y = a.y - HEIGHT }
+        }
+    }
+}
+
+red = create(1500, 'red')
+yellow = create(1500, 'yellow')
+green = create(500, 'green')
+blue = create(1000, 'blue')
+purple = create(250, 'purple')
+
+update = () => {
+    rule(red, red, .02)
+    rule(red, blue, -.025)
+    // rule(red, purple, -.25)
+    rule(yellow, red, -.015)
+    rule(yellow, yellow, -.01)
+    // rule(yellow, purple, .2)
+    rule(green, red, .025)
+    rule(green, yellow, .01)
+    rule(green, green, -.035)
+    rule(green, purple, -.3)
+    rule(blue, yellow, -.03)
+    rule(blue, green, -.01)
+    rule(blue, blue, -.05)
+    // rule(blue, purple, -.3)
+    // rule(purple, red, -.25)
+    // rule(purple, yellow, .03)
+    rule(purple, green, -.06)
+    // rule(purple, blue, -.04)
+    rule(purple, purple, -.05)
+
+    m.clearRect(0, 0, HEIGHT, HEIGHT)
+    draw(0, 0, 'black', HEIGHT)
+    for(i = 0; i < particles.length; i++) {
+        draw(particles[i].x, particles[i].y, particles[i].c, 5)
+    }
+    requestAnimationFrame(update)
+}
+
+draw(0, 0, 'black', WIDTH)
+update()
+
+</script>
